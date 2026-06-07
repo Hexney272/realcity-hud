@@ -12,9 +12,60 @@
     let speedUnit = 'kmh';
     let modules = { status: true, money: true, server: true, vehicle: true, voice: true };
 
+    // Az óra skála maximuma (km/h vagy mph). 260 km/h ~ realisztikus.
+    const GAUGE_MAX = { kmh: 260, mph: 160 };
+    const GAUGE_STEP = { kmh: 20, mph: 10 };   // fő beosztás
+    const SWEEP = 270;                         // foknyi elfordulás (0 -> max)
+    const START_ANGLE = -135;                  // 0 érték szöge (felfelé = 0)
+    const RPM_REDLINE = 80;                    // efölött piros skála
+    const ARC_LEN = 433.5;                     // 270° ív hossza r=92-nél
+
     // ---- Segédfüggvények ----------------------------------------------------
 
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+    // Érték -> mutató szög (fok)
+    function valueToAngle(v, max) {
+        return START_ANGLE + (clamp(v, 0, max) / max) * SWEEP;
+    }
+
+    // Az analóg óra skálabeosztásának felépítése (egyszer, init-kor)
+    function buildGauge() {
+        const g = $('gauge-ticks');
+        if (!g || g.childElementCount > 0) return;
+        const NS = 'http://www.w3.org/2000/svg';
+        const max = GAUGE_MAX[speedUnit];
+        const step = GAUGE_STEP[speedUnit];
+        const minorStep = step / 2;
+
+        for (let v = 0; v <= max; v += minorStep) {
+            const major = v % step === 0;
+            const a = valueToAngle(v, max) * Math.PI / 180;
+            const sin = Math.sin(a), cos = Math.cos(a);
+            const rOuter = 88;
+            const rInner = major ? 76 : 82;
+
+            const line = document.createElementNS(NS, 'line');
+            line.setAttribute('x1', 100 + rOuter * sin);
+            line.setAttribute('y1', 100 - rOuter * cos);
+            line.setAttribute('x2', 100 + rInner * sin);
+            line.setAttribute('y2', 100 - rInner * cos);
+            // pirosvonal a skála felső ~80%-a felett
+            const isRed = (v / max) * 100 >= RPM_REDLINE && major;
+            line.setAttribute('class', 'tick' + (major ? ' major' : '') + (isRed ? ' redline' : ''));
+            g.appendChild(line);
+
+            if (major) {
+                const rl = 64;
+                const t = document.createElementNS(NS, 'text');
+                t.setAttribute('x', 100 + rl * sin);
+                t.setAttribute('y', 100 - rl * cos);
+                t.setAttribute('class', 'tick-label');
+                t.textContent = v;
+                g.appendChild(t);
+            }
+        }
+    }
 
     function fmtMoney(n) {
         return '$' + Number(n || 0).toLocaleString('en-US');
@@ -98,9 +149,7 @@
             applyModules(d.modules);
             speedUnit = d.speedUnit === 'mph' ? 'mph' : 'kmh';
             $('veh-unit').textContent = speedUnit === 'mph' ? 'mph' : 'km/h';
-            if (d.server && d.server.name) {
-                // logó már statikus; itt csak ha egyedi név kell
-            }
+            buildGauge();
         },
 
         visibility(d) {
@@ -154,8 +203,17 @@
             }
             veh.classList.remove('hidden');
 
+            // digitális kijelző
             $('veh-speed').textContent = d.speed;
-            $('veh-rpm').style.width = clamp(d.rpm, 0, 100) + '%';
+
+            // analóg mutató (tű) forgatása
+            const max = GAUGE_MAX[speedUnit];
+            const ang = valueToAngle(d.speed, max);
+            $('veh-needle').style.transform = `rotate(${ang}deg)`;
+
+            // RPM ív kitöltése (stroke-dashoffset)
+            const rpm = clamp(d.rpm, 0, 100) / 100;
+            $('veh-rpm-arc').style.strokeDashoffset = (ARC_LEN * (1 - rpm)).toFixed(1);
 
             // fokozat: -1 hátra (R), 0 üres (N)
             let gear = 'N';

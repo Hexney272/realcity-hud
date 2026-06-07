@@ -78,21 +78,40 @@
             </div>
         </section>
 
-        <!-- ===================== JÁRMŰ (jobb alul) ===================== -->
-        <section id="vehicle" class="card module-vehicle hidden">
-            <div class="veh-main">
-                <div class="veh-speed">
-                    <span class="veh-speed-val" id="veh-speed">0</span>
-                    <span class="veh-speed-unit" id="veh-unit">km/h</span>
+        <!-- ===================== JÁRMŰ (jobb alul) - analóg km/h óra ===================== -->
+        <section id="vehicle" class="module-vehicle hidden">
+            <div class="gauge">
+                <svg class="gauge-svg" viewBox="0 0 200 200" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="rpmGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0"   stop-color="#3ddc84" />
+                            <stop offset="0.6" stop-color="#ffd166" />
+                            <stop offset="1"   stop-color="#ff5d5d" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- RPM ív -->
+                    <circle class="gauge-rpm-bg"   cx="100" cy="100" r="92"
+                            stroke-dasharray="433.5 578.1" />
+                    <circle class="gauge-rpm-fill" id="veh-rpm-arc" cx="100" cy="100" r="92"
+                            stroke-dasharray="433.5 578.1" stroke-dashoffset="433.5" />
+
+                    <!-- skálabeosztás (JS tölti fel) -->
+                    <g id="gauge-ticks"></g>
+                </svg>
+
+                <div class="gauge-gear" id="veh-gear">N</div>
+
+                <div class="gauge-center">
+                    <div class="gauge-speed" id="veh-speed">0</div>
+                    <div class="gauge-unit" id="veh-unit">km/h</div>
                 </div>
-                <div class="veh-gear" id="veh-gear">N</div>
+
+                <div class="gauge-needle" id="veh-needle"></div>
+                <div class="gauge-hub"></div>
             </div>
 
-            <div class="veh-rpm-track">
-                <div class="veh-rpm-fill" id="veh-rpm"></div>
-            </div>
-
-            <div class="veh-bars">
+            <div class="veh-info">
                 <div class="veh-bar" title="Üzemanyag">
                     <span class="ico">⛽</span>
                     <div class="bar-track"><div class="bar-fill fuel" id="veh-fuel-bar"></div></div>
@@ -103,10 +122,9 @@
                     <div class="bar-track"><div class="bar-fill engine" id="veh-engine-bar"></div></div>
                     <span class="bar-val" id="veh-engine">100%</span>
                 </div>
-            </div>
-
-            <div class="veh-footer">
-                <span class="seatbelt off" id="veh-seatbelt">🔰 ÖV</span>
+                <div class="veh-footer">
+                    <span class="seatbelt off" id="veh-seatbelt">🔰 ÖV</span>
+                </div>
             </div>
         </section>
 
