@@ -11,6 +11,7 @@
 
     let speedUnit = 'kmh';
     let modules = { status: true, money: true, server: true, vehicle: true, voice: true };
+    let currency = { cash: 'Ft', premium: 'RC' };
 
     // Az óra skála maximuma (km/h vagy mph). 260 km/h ~ realisztikus.
     const GAUGE_MAX = { kmh: 260, mph: 160 };
@@ -67,8 +68,10 @@
         }
     }
 
-    function fmtMoney(n) {
-        return '$' + Number(n || 0).toLocaleString('en-US');
+    function fmtMoney(n, suffix) {
+        suffix = suffix || currency.cash;
+        // magyar formátum: szóközös ezres tagolás
+        return Number(n || 0).toLocaleString('hu-HU') + ' ' + suffix;
     }
 
     // státusz szín a kitöltés alapján (alacsony = piros)
@@ -138,7 +141,8 @@
         const pop = $('pop-' + accKey);
         if (!pop) return;
         const sign = delta > 0 ? '+' : '-';
-        pop.textContent = sign + fmtMoney(Math.abs(delta));
+        const suffix = accKey === 'rc' ? currency.premium : currency.cash;
+        pop.textContent = sign + fmtMoney(Math.abs(delta), suffix);
         pop.classList.remove('up', 'down', 'show');
         void pop.offsetWidth; // reflow -> animáció újraindul
         pop.classList.add(delta > 0 ? 'up' : 'down', 'show');
@@ -151,7 +155,12 @@
             applyTheme(d.theme);
             applyModules(d.modules);
             speedUnit = d.speedUnit === 'mph' ? 'mph' : 'kmh';
+            if (d.currency) currency = Object.assign(currency, d.currency);
             $('veh-unit').textContent = speedUnit === 'mph' ? 'mph' : 'km/h';
+            $('money-cash').textContent  = fmtMoney(0);
+            $('money-bank').textContent  = fmtMoney(0);
+            $('money-black').textContent = fmtMoney(0);
+            $('money-rc').textContent    = fmtMoney(0, currency.premium);
             buildGauge();
         },
 
@@ -187,9 +196,11 @@
             $('money-cash').textContent  = fmtMoney(d.cash);
             $('money-bank').textContent  = fmtMoney(d.bank);
             $('money-black').textContent = fmtMoney(d.black);
+            $('money-rc').textContent    = fmtMoney(d.rc, currency.premium);
             moneyPopup('cash',  d.deltaCash);
             moneyPopup('bank',  d.deltaBank);
             moneyPopup('black', d.deltaBlack);
+            moneyPopup('rc',    d.deltaRc);
         },
 
         server(d) {
@@ -236,10 +247,10 @@
             const belt = $('veh-seatbelt');
             if (d.seatbelt) {
                 belt.classList.add('on'); belt.classList.remove('off');
-                belt.textContent = '🔰 ÖV BE';
+                belt.textContent = 'ÖV BE';
             } else {
                 belt.classList.add('off'); belt.classList.remove('on');
-                belt.textContent = '🔰 ÖV KI';
+                belt.textContent = 'ÖV KI';
             }
         },
     };

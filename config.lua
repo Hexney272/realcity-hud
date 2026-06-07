@@ -55,6 +55,16 @@ Config.Server = {
 -- Sebesség mértékegység: 'kmh' vagy 'mph'
 Config.SpeedUnit = 'kmh'
 
+-- Pénznem felirat (a szerver forintot használ) + prémium valuta
+Config.Currency = {
+    cash    = 'Ft',   -- készpénz / bank / fekete pénz utótag
+    premium = 'RC',   -- RealCoin (prémium fizetőeszköz) utótag
+}
+
+-- RealCoin (RC) forrása: 'account' = ESX account ('realcoin'/'rc'),
+-- vagy saját rendszerből a 'realcity_hud:setRealCoin' event-tel frissíthető.
+Config.RealCoinAccount = 'realcoin'
+
 -- Auto-hide: ezek alatt elrejtjük a HUD-ot
 Config.AutoHide = {
     pauseMenu  = true,  -- ESC / pause menü

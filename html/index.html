@@ -10,6 +10,63 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+    <!-- ===== Újrahasznosítható egyedi SVG ikonkészlet ===== -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <!-- státusz -->
+            <symbol id="ic-health" viewBox="0 0 24 24">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/>
+            </symbol>
+            <symbol id="ic-armor" viewBox="0 0 24 24">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M9 12l2 2 4-4"/>
+            </symbol>
+            <symbol id="ic-hunger" viewBox="0 0 24 24">
+                <path d="M3 11h18a9 9 0 0 1-18 0z"/>
+                <path d="M5.5 11a6.5 6.5 0 0 1 13 0"/>
+                <path d="M12 2.5v2M9.2 4.2l.8 1.8M14.8 4.2l-.8 1.8"/>
+            </symbol>
+            <symbol id="ic-thirst" viewBox="0 0 24 24">
+                <path d="M12 2.7l5.7 5.6a8 8 0 1 1-11.3 0z"/>
+            </symbol>
+            <symbol id="ic-stamina" viewBox="0 0 24 24">
+                <path d="M13 2 3 14h8l-1 8 11-13h-8z"/>
+            </symbol>
+            <symbol id="ic-oxygen" viewBox="0 0 24 24">
+                <circle cx="10" cy="13" r="5"/>
+                <circle cx="18" cy="7.5" r="2.5"/>
+            </symbol>
+            <symbol id="ic-voice" viewBox="0 0 24 24">
+                <path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                <path d="M19 11a7 7 0 0 1-14 0M12 18v3M8.5 21h7"/>
+            </symbol>
+            <symbol id="ic-users" viewBox="0 0 24 24">
+                <path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20"/>
+                <circle cx="9" cy="7" r="3.2"/>
+                <path d="M22 20v-1.5a4 4 0 0 0-3-3.8M16 3.3a4 4 0 0 1 0 7.4"/>
+            </symbol>
+            <!-- pénz -->
+            <symbol id="ic-cash" viewBox="0 0 24 24">
+                <rect x="2" y="6" width="20" height="12" rx="2"/>
+                <circle cx="12" cy="12" r="2.5"/>
+                <path d="M6 9v6M18 9v6"/>
+            </symbol>
+            <symbol id="ic-bank" viewBox="0 0 24 24">
+                <path d="M3 21h18M4 10h16M12 3 4 7v3h16V7z"/>
+                <path d="M6 10v8M10 10v8M14 10v8M18 10v8"/>
+            </symbol>
+            <symbol id="ic-black" viewBox="0 0 24 24">
+                <path d="M8 3h8l-1.4 4H9.4z"/>
+                <path d="M7 7c-2 2-3.5 5-3.5 8A5.5 5.5 0 0 0 9 20.5h6A5.5 5.5 0 0 0 20.5 15c0-3-1.5-6-3.5-8"/>
+                <path d="M12 11.5v5M10 13.5h4"/>
+            </symbol>
+            <symbol id="ic-rc" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 6.5l1.6 3.2 3.5.5-2.5 2.5.6 3.5-3.2-1.7-3.2 1.7.6-3.5L6.9 10.2l3.5-.5z"/>
+            </symbol>
+        </defs>
+    </svg>
+
     <div id="hud" class="hidden">
 
         <!-- ===================== SZERVER (bal felül) ===================== -->
@@ -19,7 +76,7 @@
             </div>
             <div class="server-meta">
                 <div class="server-players">
-                    <span class="ico">👥</span>
+                    <svg class="meta-ico"><use href="#ic-users"/></svg>
                     <span id="srv-players">0</span><span class="muted">/<span id="srv-max">48</span></span>
                 </div>
                 <div class="server-id">
@@ -31,50 +88,55 @@
         <!-- ===================== PÉNZ (jobb felül) ===================== -->
         <section id="money" class="card module-money">
             <div class="money-row" data-acc="cash">
-                <span class="ico">💵</span>
-                <span class="money-val" id="money-cash">$0</span>
+                <svg class="money-ico"><use href="#ic-cash"/></svg>
+                <span class="money-val" id="money-cash">0 Ft</span>
                 <span class="money-pop" id="pop-cash"></span>
             </div>
             <div class="money-row" data-acc="bank">
-                <span class="ico">🏦</span>
-                <span class="money-val" id="money-bank">$0</span>
+                <svg class="money-ico"><use href="#ic-bank"/></svg>
+                <span class="money-val" id="money-bank">0 Ft</span>
                 <span class="money-pop" id="pop-bank"></span>
             </div>
             <div class="money-row" data-acc="black">
-                <span class="ico">🖤</span>
-                <span class="money-val" id="money-black">$0</span>
+                <svg class="money-ico"><use href="#ic-black"/></svg>
+                <span class="money-val" id="money-black">0 Ft</span>
                 <span class="money-pop" id="pop-black"></span>
+            </div>
+            <div class="money-row rc" data-acc="rc">
+                <svg class="money-ico"><use href="#ic-rc"/></svg>
+                <span class="money-val" id="money-rc">0 RC</span>
+                <span class="money-pop" id="pop-rc"></span>
             </div>
         </section>
 
         <!-- ===================== STÁTUSZ (bal alul) ===================== -->
         <section id="status" class="module-status">
             <div class="status-ring" data-stat="health" title="Élet">
-                <span class="ring-ico">❤️</span>
+                <svg class="ring-ico"><use href="#ic-health"/></svg>
                 <span class="ring-val" id="st-health">100</span>
             </div>
             <div class="status-ring" data-stat="armor" title="Páncél">
-                <span class="ring-ico">🛡️</span>
+                <svg class="ring-ico"><use href="#ic-armor"/></svg>
                 <span class="ring-val" id="st-armor">0</span>
             </div>
             <div class="status-ring" data-stat="hunger" title="Éhség">
-                <span class="ring-ico">🍔</span>
+                <svg class="ring-ico"><use href="#ic-hunger"/></svg>
                 <span class="ring-val" id="st-hunger">100</span>
             </div>
             <div class="status-ring" data-stat="thirst" title="Szomjúság">
-                <span class="ring-ico">💧</span>
+                <svg class="ring-ico"><use href="#ic-thirst"/></svg>
                 <span class="ring-val" id="st-thirst">100</span>
             </div>
             <div class="status-ring" data-stat="stamina" title="Stamina">
-                <span class="ring-ico">⚡</span>
+                <svg class="ring-ico"><use href="#ic-stamina"/></svg>
                 <span class="ring-val" id="st-stamina">100</span>
             </div>
             <div class="status-ring hidden" data-stat="oxygen" id="ring-oxygen" title="Oxigén">
-                <span class="ring-ico">🫧</span>
+                <svg class="ring-ico"><use href="#ic-oxygen"/></svg>
                 <span class="ring-val" id="st-oxygen">100</span>
             </div>
             <div class="status-ring voice-ring" data-stat="voice" id="ring-voice" title="Voice">
-                <span class="ring-ico">🎤</span>
+                <svg class="ring-ico"><use href="#ic-voice"/></svg>
             </div>
         </section>
 
@@ -113,17 +175,17 @@
 
             <div class="veh-info">
                 <div class="veh-bar" title="Üzemanyag">
-                    <span class="ico">⛽</span>
+                    <svg class="veh-ico"><use href="#ic-thirst"/></svg>
                     <div class="bar-track"><div class="bar-fill fuel" id="veh-fuel-bar"></div></div>
                     <span class="bar-val" id="veh-fuel">0%</span>
                 </div>
                 <div class="veh-bar" title="Motor állapot">
-                    <span class="ico">🔧</span>
+                    <svg class="veh-ico"><use href="#ic-armor"/></svg>
                     <div class="bar-track"><div class="bar-fill engine" id="veh-engine-bar"></div></div>
                     <span class="bar-val" id="veh-engine">100%</span>
                 </div>
                 <div class="veh-footer">
-                    <span class="seatbelt off" id="veh-seatbelt">🔰 ÖV</span>
+                    <span class="seatbelt off" id="veh-seatbelt">ÖV</span>
                 </div>
             </div>
         </section>

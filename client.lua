@@ -7,7 +7,7 @@ local ESX = nil
 local hudVisible = true        -- /hud kapcsoló állapota
 local nuiReady = false
 local lastStatus = { hunger = 0, thirst = 0 }
-local lastMoney  = { cash = 0, bank = 0, black = 0 }
+local lastMoney  = { cash = 0, bank = 0, black = 0, rc = 0 }
 local playerLoaded = false
 
 -- ESX betöltése (ha van)
@@ -51,6 +51,7 @@ RegisterNUICallback('ready', function(_, cb)
         modules = Config.Modules,
         server  = { name = Config.Server.name },
         speedUnit = Config.SpeedUnit,
+        currency = Config.Currency,
     })
     cb({ ok = true })
 end)
@@ -167,29 +168,38 @@ end)
 --  PÉNZ loop + esemény-alapú frissítés (+/- animáció)
 -- ---------------------------------------------------------------------------
 
-local function pushMoney(cash, bank, black)
+local function pushMoney(cash, bank, black, rc)
+    rc = rc or lastMoney.rc
     local deltaCash  = cash  - lastMoney.cash
     local deltaBank  = bank  - lastMoney.bank
     local deltaBlack = black - lastMoney.black
+    local deltaRc    = rc    - lastMoney.rc
 
     sendNUI('money', {
-        cash = cash, bank = bank, black = black,
-        deltaCash = deltaCash, deltaBank = deltaBank, deltaBlack = deltaBlack,
+        cash = cash, bank = bank, black = black, rc = rc,
+        deltaCash = deltaCash, deltaBank = deltaBank, deltaBlack = deltaBlack, deltaRc = deltaRc,
     })
 
-    lastMoney.cash, lastMoney.bank, lastMoney.black = cash, bank, black
+    lastMoney.cash, lastMoney.bank, lastMoney.black, lastMoney.rc = cash, bank, black, rc
 end
 
 -- ESX account változás eseményből (azonnali popup)
 RegisterNetEvent('esx:setAccountMoney', function(account)
     if not account then return end
     if account.name == 'money' then
-        pushMoney(account.money, lastMoney.bank, lastMoney.black)
+        pushMoney(account.money, lastMoney.bank, lastMoney.black, lastMoney.rc)
     elseif account.name == 'bank' then
-        pushMoney(lastMoney.cash, account.money, lastMoney.black)
+        pushMoney(lastMoney.cash, account.money, lastMoney.black, lastMoney.rc)
     elseif account.name == 'black_money' then
-        pushMoney(lastMoney.cash, lastMoney.bank, account.money)
+        pushMoney(lastMoney.cash, lastMoney.bank, account.money, lastMoney.rc)
+    elseif account.name == 'realcoin' or account.name == 'rc' then
+        pushMoney(lastMoney.cash, lastMoney.bank, lastMoney.black, account.money)
     end
+end)
+
+-- RealCoin (RC) külön event-ből is frissíthető (pl. saját webshop/prémium rendszer)
+RegisterNetEvent('realcity_hud:setRealCoin', function(amount)
+    pushMoney(lastMoney.cash, lastMoney.bank, lastMoney.black, tonumber(amount) or 0)
 end)
 
 CreateThread(function()
@@ -199,15 +209,18 @@ CreateThread(function()
             local cash  = 0
             local bank  = 0
             local black = 0
+            local rc    = lastMoney.rc
             local accounts = ESX.GetPlayerData and ESX.GetPlayerData().accounts or nil
             if accounts then
                 for _, acc in pairs(accounts) do
                     if acc.name == 'money' then cash = acc.money
                     elseif acc.name == 'bank' then bank = acc.money
-                    elseif acc.name == 'black_money' then black = acc.money end
+                    elseif acc.name == 'black_money' then black = acc.money
+                    elseif acc.name == 'realcoin' or acc.name == 'rc' then rc = acc.money end
                 end
-                if cash ~= lastMoney.cash or bank ~= lastMoney.bank or black ~= lastMoney.black then
-                    pushMoney(cash, bank, black)
+                if cash ~= lastMoney.cash or bank ~= lastMoney.bank
+                   or black ~= lastMoney.black or rc ~= lastMoney.rc then
+                    pushMoney(cash, bank, black, rc)
                 end
             end
         end
