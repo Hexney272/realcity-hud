@@ -42,15 +42,16 @@ html, body {
 
 .hidden { display: none !important; }
 
-/* ---------- Glass kártya alap ---------- */
+/* ---------- Glass kártya alap ----------
+   FONTOS: a FiveM CEF rétegben a backdrop-filter NEM elmosást, hanem
+   tömör FEKETE dobozt renderel (a játék nem része a DOM-nak). Ezért nincs
+   backdrop-filter sehol - helyette áttetsző háttér + finom belső fény. */
 .card {
     position: absolute;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     border-radius: 14px;
-    box-shadow: var(--glass-shadow);
-    backdrop-filter: blur(10px) saturate(135%);
-    -webkit-backdrop-filter: blur(10px) saturate(135%);
+    box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.06);
     padding: 10px 13px;
 }
 
@@ -163,15 +164,13 @@ html, body {
     background-image: conic-gradient(var(--col, var(--green)) calc(var(--pct, 100) * 1%), rgba(255,255,255,0.10) 0);
 }
 
-/* belső kör - áttetsző üveg, nem tömör fekete */
+/* belső kör - áttetsző üveg (NINCS backdrop-filter -> nincs fekete doboz) */
 .status-ring::before {
     content: "";
     position: absolute;
     inset: 4px;
     border-radius: 50%;
     background: var(--glass-bg-strong);
-    backdrop-filter: blur(8px) saturate(135%);
-    -webkit-backdrop-filter: blur(8px) saturate(135%);
 }
 
 .ring-ico { position: relative; font-size: 13px; line-height: 1; }
@@ -210,25 +209,21 @@ html, body {
     background: none;       /* nincs nagy fekete kártya - csak az óra */
     border: none;
     box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
     padding: 0;
 }
 
-/* --- Az óra maga --- */
+/* --- Az óra maga (NINCS backdrop-filter) --- */
 .gauge {
     position: relative;
     width: 180px;
     height: 180px;
     border-radius: 50%;
     background: radial-gradient(circle at 50% 45%,
-        rgba(28, 34, 46, 0.55) 0%,
-        rgba(14, 18, 26, 0.50) 70%,
-        rgba(10, 13, 20, 0.55) 100%);
+        rgba(30, 36, 48, 0.45) 0%,
+        rgba(16, 20, 28, 0.40) 70%,
+        rgba(10, 13, 20, 0.45) 100%);
     border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow), inset 0 0 24px rgba(0,0,0,0.35);
-    backdrop-filter: blur(10px) saturate(135%);
-    -webkit-backdrop-filter: blur(10px) saturate(135%);
+    box-shadow: var(--glass-shadow), inset 0 0 24px rgba(0,0,0,0.30);
 }
 
 .gauge-svg {
@@ -337,7 +332,7 @@ html, body {
     z-index: 2;
 }
 
-/* --- alsó infók: üzemanyag / motor / öv --- */
+/* --- alsó infók: üzemanyag / motor / öv (NINCS backdrop-filter) --- */
 .veh-info {
     width: 180px;
     display: flex;
@@ -346,9 +341,7 @@ html, body {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    box-shadow: var(--glass-shadow);
-    backdrop-filter: blur(10px) saturate(135%);
-    -webkit-backdrop-filter: blur(10px) saturate(135%);
+    box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.06);
     padding: 9px 11px;
 }
 
