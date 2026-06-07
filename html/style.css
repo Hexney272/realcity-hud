@@ -1,0 +1,277 @@
+/* ==========================================================================
+   RealCity HUD - style.css
+   Glassmorphism kártyák, Inter font, zöld/kék/arany téma
+   ========================================================================== */
+
+:root {
+    --green: #3ddc84;
+    --blue:  #4aa8ff;
+    --gold:  #ffd166;
+    --red:   #ff5d5d;
+    --armor: #8ab4ff;
+
+    --glass-bg: rgba(16, 20, 28, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.10);
+    --glass-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+    --text: #f4f7fb;
+    --muted: rgba(244, 247, 251, 0.55);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    user-select: none;
+}
+
+#hud {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    transition: opacity 0.35s ease;
+}
+
+#hud.hidden { opacity: 0; pointer-events: none; }
+
+.hidden { display: none !important; }
+
+/* ---------- Glass kártya alap ---------- */
+.card {
+    position: absolute;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    padding: 12px 14px;
+}
+
+.ico { font-size: 15px; line-height: 1; }
+.muted { color: var(--muted); font-weight: 500; }
+
+/* ==========================================================================
+   SZERVER (bal felül)
+   ========================================================================== */
+.module-server {
+    top: 18px;
+    left: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 190px;
+}
+
+.server-logo {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+.logo-real { color: var(--text); }
+.logo-city { color: var(--green); }
+
+.server-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.server-players { display: flex; align-items: center; gap: 6px; }
+.server-id { color: var(--muted); font-size: 11px; letter-spacing: 0.4px; }
+.server-id #srv-id { color: var(--blue); font-weight: 700; }
+
+/* ==========================================================================
+   PÉNZ (jobb felül)
+   ========================================================================== */
+.module-money {
+    top: 18px;
+    right: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 170px;
+    text-align: right;
+}
+
+.money-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+}
+.money-row[data-acc="cash"]  .money-val { color: var(--gold); }
+.money-row[data-acc="bank"]  .money-val { color: var(--blue); }
+.money-row[data-acc="black"] .money-val { color: #b388ff; }
+
+.money-pop {
+    position: absolute;
+    right: 0;
+    top: -16px;
+    font-size: 12px;
+    font-weight: 800;
+    opacity: 0;
+    pointer-events: none;
+}
+.money-pop.up   { color: var(--green); }
+.money-pop.down { color: var(--red); }
+.money-pop.show { animation: popFloat 1.2s ease forwards; }
+
+@keyframes popFloat {
+    0%   { opacity: 0; transform: translateY(6px); }
+    20%  { opacity: 1; transform: translateY(-2px); }
+    80%  { opacity: 1; transform: translateY(-10px); }
+    100% { opacity: 0; transform: translateY(-18px); }
+}
+
+/* ==========================================================================
+   STÁTUSZ (bal alul, minimap mellett)
+   ========================================================================== */
+.module-status {
+    position: absolute;
+    left: 250px;          /* minimap mellé jobbra; igazítsd a szervered minimapjához */
+    bottom: 24px;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.status-ring {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    /* a kör kitöltés a --pct és --col változókból */
+    background-image: conic-gradient(var(--col, var(--green)) calc(var(--pct, 100) * 1%), rgba(255,255,255,0.06) 0);
+    background-origin: border-box;
+}
+
+/* belső sötét kör, hogy gyűrű hatás legyen */
+.status-ring::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: rgba(12, 15, 22, 0.85);
+    backdrop-filter: blur(6px);
+}
+
+.ring-ico { position: relative; font-size: 14px; line-height: 1; }
+.ring-val {
+    position: relative;
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    margin-top: 1px;
+}
+
+/* Voice gyűrű */
+.voice-ring { --col: var(--muted); }
+.voice-ring.talking {
+    --col: var(--green);
+    animation: voicePulse 0.9s ease-in-out infinite;
+    box-shadow: 0 0 16px rgba(61, 220, 132, 0.6);
+}
+@keyframes voicePulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.12); }
+}
+
+/* ==========================================================================
+   JÁRMŰ (jobb alul)
+   ========================================================================== */
+.module-vehicle {
+    right: 18px;
+    bottom: 24px;
+    width: 210px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.veh-main {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+.veh-speed { display: flex; align-items: baseline; gap: 4px; }
+.veh-speed-val {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+}
+.veh-speed-unit { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+.veh-gear {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--gold);
+    min-width: 26px;
+    text-align: center;
+}
+
+/* RPM sáv */
+.veh-rpm-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+}
+.veh-rpm-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--green), var(--gold) 70%, var(--red));
+    transition: width 0.08s linear;
+}
+
+/* Üzemanyag / motor sávok */
+.veh-bars { display: flex; flex-direction: column; gap: 7px; }
+.veh-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.bar-track {
+    flex: 1;
+    height: 7px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+}
+.bar-fill { height: 100%; width: 100%; border-radius: 6px; transition: width 0.3s ease, background 0.3s ease; }
+.bar-fill.fuel   { background: linear-gradient(90deg, var(--gold), var(--green)); }
+.bar-fill.engine { background: linear-gradient(90deg, var(--red), var(--green)); }
+.bar-val { width: 38px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+/* Öv */
+.veh-footer { display: flex; justify-content: flex-end; }
+.seatbelt {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    transition: all 0.25s ease;
+}
+.seatbelt.off { color: var(--red);   background: rgba(255, 93, 93, 0.14); }
+.seatbelt.on  { color: var(--green); background: rgba(61, 220, 132, 0.16); }

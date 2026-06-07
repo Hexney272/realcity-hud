@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RealCity HUD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="hud" class="hidden">
+
+        <!-- ===================== SZERVER (bal felül) ===================== -->
+        <section id="server" class="card module-server">
+            <div class="server-logo">
+                <span class="logo-real">Real</span><span class="logo-city">City</span>
+            </div>
+            <div class="server-meta">
+                <div class="server-players">
+                    <span class="ico">👥</span>
+                    <span id="srv-players">0</span><span class="muted">/<span id="srv-max">48</span></span>
+                </div>
+                <div class="server-id">
+                    <span class="muted">ID</span> <span id="srv-id">--</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== PÉNZ (jobb felül) ===================== -->
+        <section id="money" class="card module-money">
+            <div class="money-row" data-acc="cash">
+                <span class="ico">💵</span>
+                <span class="money-val" id="money-cash">$0</span>
+                <span class="money-pop" id="pop-cash"></span>
+            </div>
+            <div class="money-row" data-acc="bank">
+                <span class="ico">🏦</span>
+                <span class="money-val" id="money-bank">$0</span>
+                <span class="money-pop" id="pop-bank"></span>
+            </div>
+            <div class="money-row" data-acc="black">
+                <span class="ico">🖤</span>
+                <span class="money-val" id="money-black">$0</span>
+                <span class="money-pop" id="pop-black"></span>
+            </div>
+        </section>
+
+        <!-- ===================== STÁTUSZ (bal alul) ===================== -->
+        <section id="status" class="module-status">
+            <div class="status-ring" data-stat="health" title="Élet">
+                <span class="ring-ico">❤️</span>
+                <span class="ring-val" id="st-health">100</span>
+            </div>
+            <div class="status-ring" data-stat="armor" title="Páncél">
+                <span class="ring-ico">🛡️</span>
+                <span class="ring-val" id="st-armor">0</span>
+            </div>
+            <div class="status-ring" data-stat="hunger" title="Éhség">
+                <span class="ring-ico">🍔</span>
+                <span class="ring-val" id="st-hunger">100</span>
+            </div>
+            <div class="status-ring" data-stat="thirst" title="Szomjúság">
+                <span class="ring-ico">💧</span>
+                <span class="ring-val" id="st-thirst">100</span>
+            </div>
+            <div class="status-ring" data-stat="stamina" title="Stamina">
+                <span class="ring-ico">⚡</span>
+                <span class="ring-val" id="st-stamina">100</span>
+            </div>
+            <div class="status-ring hidden" data-stat="oxygen" id="ring-oxygen" title="Oxigén">
+                <span class="ring-ico">🫧</span>
+                <span class="ring-val" id="st-oxygen">100</span>
+            </div>
+            <div class="status-ring voice-ring" data-stat="voice" id="ring-voice" title="Voice">
+                <span class="ring-ico">🎤</span>
+            </div>
+        </section>
+
+        <!-- ===================== JÁRMŰ (jobb alul) ===================== -->
+        <section id="vehicle" class="card module-vehicle hidden">
+            <div class="veh-main">
+                <div class="veh-speed">
+                    <span class="veh-speed-val" id="veh-speed">0</span>
+                    <span class="veh-speed-unit" id="veh-unit">km/h</span>
+                </div>
+                <div class="veh-gear" id="veh-gear">N</div>
+            </div>
+
+            <div class="veh-rpm-track">
+                <div class="veh-rpm-fill" id="veh-rpm"></div>
+            </div>
+
+            <div class="veh-bars">
+                <div class="veh-bar" title="Üzemanyag">
+                    <span class="ico">⛽</span>
+                    <div class="bar-track"><div class="bar-fill fuel" id="veh-fuel-bar"></div></div>
+                    <span class="bar-val" id="veh-fuel">0%</span>
+                </div>
+                <div class="veh-bar" title="Motor állapot">
+                    <span class="ico">🔧</span>
+                    <div class="bar-track"><div class="bar-fill engine" id="veh-engine-bar"></div></div>
+                    <span class="bar-val" id="veh-engine">100%</span>
+                </div>
+            </div>
+
+            <div class="veh-footer">
+                <span class="seatbelt off" id="veh-seatbelt">🔰 ÖV</span>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
