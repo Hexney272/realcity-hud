@@ -99,6 +99,9 @@
         const pct = clamp(Math.round(value), 0, 100);
         ring.style.setProperty('--pct', pct);
         ring.style.setProperty('--col', statColor(stat, pct));
+        // alacsony érték -> pulzáló figyelmeztetés
+        if (pct <= 20) ring.classList.add('low');
+        else ring.classList.remove('low');
         if (valEl) valEl.textContent = pct;
     }
 
