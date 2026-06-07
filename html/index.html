@@ -64,6 +64,9 @@
                 <circle cx="12" cy="12" r="9"/>
                 <path d="M12 6.5l1.6 3.2 3.5.5-2.5 2.5.6 3.5-3.2-1.7-3.2 1.7.6-3.5L6.9 10.2l3.5-.5z"/>
             </symbol>
+            <symbol id="ic-star" viewBox="0 0 24 24">
+                <path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.1 6.47L12 17.4l-5.8 3.05 1.1-6.47-4.7-4.58 6.5-.95z"/>
+            </symbol>
         </defs>
     </svg>
 
@@ -106,6 +109,21 @@
                 <svg class="money-ico"><use href="#ic-rc"/></svg>
                 <span class="money-val" id="money-rc">0 RC</span>
                 <span class="money-pop" id="pop-rc"></span>
+            </div>
+
+            <!-- Játékos szint (LvL) az RC alatt -->
+            <div class="level-chip" id="level-chip">
+                <svg class="lvl-ico"><use href="#ic-star"/></svg>
+                <div class="lvl-info">
+                    <div class="lvl-top">
+                        <span class="lvl-label">Szint</span>
+                        <span class="lvl-num" id="lvl-num">1</span>
+                    </div>
+                    <div class="lvl-bar-track">
+                        <div class="lvl-bar-fill" id="lvl-bar"></div>
+                    </div>
+                </div>
+                <span class="lvl-xp" id="lvl-xp">0 / 100</span>
             </div>
         </section>
 

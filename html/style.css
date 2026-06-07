@@ -142,6 +142,63 @@ svg.veh-ico  { width: 16px; height: 16px; color: var(--muted); }
 .money-row.rc .money-val { text-shadow: 0 0 10px rgba(255,209,102,0.55), 0 1px 4px rgba(0,0,0,0.85); }
 .money-row.rc .money-ico { filter: drop-shadow(0 0 6px rgba(255,209,102,0.65)); }
 
+/* --- Játékos szint chip (az RC alatt) --- */
+.level-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    color: var(--text);
+}
+.lvl-ico {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    fill: var(--gold);
+    stroke: none;
+    filter: drop-shadow(0 0 5px rgba(255,209,102,0.55));
+}
+.lvl-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+.lvl-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.lvl-label { color: var(--muted); font-weight: 600; }
+.lvl-num { color: var(--gold); font-size: 14px; font-weight: 800; }
+.lvl-bar-track {
+    height: 5px;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.12);
+    overflow: hidden;
+}
+.lvl-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 5px;
+    background: linear-gradient(90deg, var(--gold), var(--green));
+    box-shadow: 0 0 8px rgba(255,209,102,0.5);
+    transition: width 0.4s ease;
+}
+.lvl-xp {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
 .money-pop {
     position: absolute;
     right: 0;

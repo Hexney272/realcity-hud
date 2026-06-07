@@ -209,6 +209,15 @@
             $('srv-id').textContent = d.serverId != null ? d.serverId : '--';
         },
 
+        level(d) {
+            if (d.level != null) $('lvl-num').textContent = d.level;
+            const xp = Number(d.xp || 0);
+            const next = Number(d.xpNext || 0);
+            const pct = next > 0 ? clamp((xp / next) * 100, 0, 100) : 0;
+            $('lvl-bar').style.width = pct + '%';
+            $('lvl-xp').textContent = xp.toLocaleString('hu-HU') + ' / ' + next.toLocaleString('hu-HU');
+        },
+
         vehicle(d) {
             const veh = $('vehicle');
             if (!d.inVehicle || !modules.vehicle) {

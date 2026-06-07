@@ -277,6 +277,17 @@ RegisterNetEvent('realcity_hud:serverInfo', function(data)
     })
 end)
 
+-- Játékos szint a HUD-on (a realcity-leveling resource küldi)
+--   TriggerClientEvent('realcity_hud:setLevel', src, { level = 12, xp = 340, xpNext = 800 })
+RegisterNetEvent('realcity_hud:setLevel', function(data)
+    if type(data) ~= 'table' then return end
+    sendNUI('level', {
+        level  = data.level,
+        xp     = data.xp,
+        xpNext = data.xpNext,
+    })
+end)
+
 CreateThread(function()
     while true do
         Wait(Config.UpdateRate.server)
