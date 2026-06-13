@@ -166,6 +166,8 @@ end)
 
 -- ---------------------------------------------------------------------------
 --  PÉNZ loop + esemény-alapú frissítés (+/- animáció)
+--  A készpénz és fekete pénz az ox_inventory-ból jön (item-ként),
+--  a bank továbbra is ESX account marad.
 -- ---------------------------------------------------------------------------
 
 local function pushMoney(cash, bank, black, rc)
@@ -183,18 +185,25 @@ local function pushMoney(cash, bank, black, rc)
     lastMoney.cash, lastMoney.bank, lastMoney.black, lastMoney.rc = cash, bank, black, rc
 end
 
--- ESX account változás eseményből (azonnali popup)
+-- ox_inventory küldi a pénz adatokat (item-alapú cash/black_money + ESX bank)
+RegisterNetEvent('ox_inventory:updateMoney', function(data)
+    if not data then return end
+    local cash  = tonumber(data.cash) or lastMoney.cash
+    local bank  = tonumber(data.bank) or lastMoney.bank
+    local black = tonumber(data.black) or lastMoney.black
+    pushMoney(cash, bank, black, lastMoney.rc)
+end)
+
+-- ESX account változás eseményből (bank és RC frissítés - ezek maradnak ESX-ben)
 RegisterNetEvent('esx:setAccountMoney', function(account)
     if not account then return end
-    if account.name == 'money' then
-        pushMoney(account.money, lastMoney.bank, lastMoney.black, lastMoney.rc)
-    elseif account.name == 'bank' then
+    if account.name == 'bank' then
         pushMoney(lastMoney.cash, account.money, lastMoney.black, lastMoney.rc)
-    elseif account.name == 'black_money' then
-        pushMoney(lastMoney.cash, lastMoney.bank, account.money, lastMoney.rc)
     elseif account.name == 'realcoin' or account.name == 'rc' then
         pushMoney(lastMoney.cash, lastMoney.bank, lastMoney.black, account.money)
     end
+    -- 'money' és 'black_money' account változásokat IGNORÁLJUK,
+    -- mert azokat az ox_inventory:updateMoney kezeli (item-ként).
 end)
 
 -- RealCoin (RC) külön event-ből is frissíthető (pl. saját webshop/prémium rendszer)
@@ -202,25 +211,28 @@ RegisterNetEvent('realcity_hud:setRealCoin', function(amount)
     pushMoney(lastMoney.cash, lastMoney.bank, lastMoney.black, tonumber(amount) or 0)
 end)
 
+-- Pénz polling: kérjük az ox_inventory-tól a money item adatokat
+-- Bank-ot ESX-ből kérjük, RC-t ESX-ből
 CreateThread(function()
     while true do
         Wait(Config.UpdateRate.money)
-        if Config.Modules.money and ESX then
-            local cash  = 0
-            local bank  = 0
-            local black = 0
-            local rc    = lastMoney.rc
-            local accounts = ESX.GetPlayerData and ESX.GetPlayerData().accounts or nil
-            if accounts then
-                for _, acc in pairs(accounts) do
-                    if acc.name == 'money' then cash = acc.money
-                    elseif acc.name == 'bank' then bank = acc.money
-                    elseif acc.name == 'black_money' then black = acc.money
-                    elseif acc.name == 'realcoin' or acc.name == 'rc' then rc = acc.money end
-                end
-                if cash ~= lastMoney.cash or bank ~= lastMoney.bank
-                   or black ~= lastMoney.black or rc ~= lastMoney.rc then
-                    pushMoney(cash, bank, black, rc)
+        if Config.Modules.money then
+            -- Kérjük az inventory-tól a pénz item adatokat
+            TriggerServerEvent('ox_inventory:requestMoney')
+
+            -- Bank és RC továbbra is ESX-ből (account)
+            if ESX then
+                local accounts = ESX.GetPlayerData and ESX.GetPlayerData().accounts or nil
+                if accounts then
+                    local bank = lastMoney.bank
+                    local rc   = lastMoney.rc
+                    for _, acc in pairs(accounts) do
+                        if acc.name == 'bank' then bank = acc.money
+                        elseif acc.name == 'realcoin' or acc.name == 'rc' then rc = acc.money end
+                    end
+                    if bank ~= lastMoney.bank or rc ~= lastMoney.rc then
+                        pushMoney(lastMoney.cash, bank, lastMoney.black, rc)
+                    end
                 end
             end
         end
