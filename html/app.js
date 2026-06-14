@@ -137,15 +137,21 @@
     // ---- PÉNZ popup ---------------------------------------------------------
 
     function moneyPopup(accKey, delta) {
-        if (!delta) return;
+        if (!delta || delta === 0) return;
         const pop = $('pop-' + accKey);
         if (!pop) return;
         const sign = delta > 0 ? '+' : '-';
         const suffix = accKey === 'rc' ? currency.premium : currency.cash;
         pop.textContent = sign + fmtMoney(Math.abs(delta), suffix);
         pop.classList.remove('up', 'down', 'show');
-        void pop.offsetWidth; // reflow -> animáció újraindul
+        // Force reflow to restart animation reliably
+        void pop.offsetWidth;
         pop.classList.add(delta > 0 ? 'up' : 'down', 'show');
+        // Remove 'show' after animation ends to ensure it doesn't stay stuck
+        pop.addEventListener('animationend', function handler() {
+            pop.classList.remove('up', 'down', 'show');
+            pop.removeEventListener('animationend', handler);
+        });
     }
 
     // ---- Üzenetkezelő -------------------------------------------------------
@@ -165,8 +171,16 @@
         },
 
         visibility(d) {
-            if (d.visible) hud.classList.remove('hidden');
-            else hud.classList.add('hidden');
+            if (d.visible) {
+                hud.classList.remove('hidden');
+            } else {
+                hud.classList.add('hidden');
+                // Ha a HUD elrejtődik, azonnal töröljük az aktív popup animációkat,
+                // hogy visszatéréskor ne villanjon fel semmilyen régi popup
+                document.querySelectorAll('.money-pop.show').forEach(pop => {
+                    pop.classList.remove('up', 'down', 'show');
+                });
+            }
         },
 
         status(d) {
