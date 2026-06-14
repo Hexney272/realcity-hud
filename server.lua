@@ -1,6 +1,6 @@
 -- ==========================================================================
 --  RealCity HUD - server.lua
---  Játékosszám, szerver ID, max slot lekérés
+--  Játékosszám, szerver ID, max slot lekérés, szint lekérés
 -- ==========================================================================
 
 local maxPlayers = GetConvarInt('sv_maxclients', 48)
@@ -137,3 +137,54 @@ RegisterCommand('giverc', function(src, args)
             color = { 255, 93, 93 }, args = { 'RealCity', 'Sikertelen (nincs ESX, vagy a realcoin account nincs regisztrálva).' } })
     end
 end, false)
+
+
+
+-- ==========================================================================
+--  Szint (Level) lekérés - a HUD kliens periodikusan kéri
+--  A realcity-leveling resource-ból exporttal kapjuk meg az adatokat.
+-- ==========================================================================
+
+RegisterNetEvent('realcity_hud:requestLevel', function()
+    local src = source
+    if GetResourceState('realcity-leveling') ~= 'started' then return end
+
+    -- Próbáljuk a GetSnapshot exportot (ez a teljes pillanatképet adja)
+    local ok, snap = pcall(function()
+        return exports['realcity-leveling']:GetSnapshot(src)
+    end)
+
+    if ok and snap then
+        TriggerClientEvent('realcity_hud:setLevel', src, {
+            level  = snap.level or 1,
+            xp     = snap.xp or 0,
+            xpNext = snap.xpNext or 100,
+        })
+    else
+        -- Fallback: csak a szintet kérjük
+        local ok2, level = pcall(function()
+            return exports['realcity-leveling']:GetLevel(src)
+        end)
+        if ok2 and level then
+            TriggerClientEvent('realcity_hud:setLevel', src, {
+                level  = level or 1,
+                xp     = 0,
+                xpNext = 100,
+            })
+        end
+    end
+end)
+
+
+
+-- ==========================================================================
+--  RC egyenleg lekérés - a HUD kliens polling-olja
+-- ==========================================================================
+
+RegisterNetEvent('realcity_hud:requestRcBalance', function()
+    local src = source
+    local rc = getRealCoin(src)
+    if rc >= 0 then
+        TriggerClientEvent('realcity_hud:setRealCoin', src, rc)
+    end
+end)

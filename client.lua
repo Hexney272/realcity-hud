@@ -9,6 +9,7 @@ local nuiReady = false
 local lastStatus = { hunger = 0, thirst = 0 }
 local lastMoney  = { cash = 0, bank = 0, black = 0, rc = 0 }
 local playerLoaded = false
+local hudCurrentlyHidden = false   -- nyomon követjük, hogy a HUD rejtve van-e (auto-hide / manual)
 
 -- ESX betöltése (ha van)
 CreateThread(function()
@@ -128,6 +129,7 @@ CreateThread(function()
         local ped = PlayerPedId()
 
         local hidden = (not hudVisible) or shouldAutoHide()
+        hudCurrentlyHidden = hidden  -- frissítjük a globális állapotot a pushMoney számára
         sendNUI('visibility', { visible = not hidden })
         if hidden then goto continue end
 
@@ -177,6 +179,14 @@ local function pushMoney(cash, bank, black, rc)
     local deltaBlack = black - lastMoney.black
     local deltaRc    = rc    - lastMoney.rc
 
+    -- Ha a HUD jelenleg rejtve van (ESC/pause/inventory), NE küldjük a deltákat,
+    -- mert a popup-ok halmozódnának és visszatéréskor mind egyszerre jelennének meg.
+    -- Ehelyett frissítjük a lastMoney-t (hogy ne legyen fals delta), de nem mutatunk popup-ot.
+    if hudCurrentlyHidden then
+        lastMoney.cash, lastMoney.bank, lastMoney.black, lastMoney.rc = cash, bank, black, rc
+        return
+    end
+
     sendNUI('money', {
         cash = cash, bank = bank, black = black, rc = rc,
         deltaCash = deltaCash, deltaBank = deltaBank, deltaBlack = deltaBlack, deltaRc = deltaRc,
@@ -212,29 +222,36 @@ RegisterNetEvent('realcity_hud:setRealCoin', function(amount)
 end)
 
 -- Pénz polling: kérjük az ox_inventory-tól a money item adatokat
--- Bank-ot ESX-ből kérjük, RC-t ESX-ből
+-- Bank-ot ESX-ből kérjük, RC-t ESX-ből vagy a hud szerver exportból
 CreateThread(function()
     while true do
         Wait(Config.UpdateRate.money)
-        if Config.Modules.money then
+        if Config.Modules.money and not hudCurrentlyHidden then
             -- Kérjük az inventory-tól a pénz item adatokat
             TriggerServerEvent('ox_inventory:requestMoney')
 
             -- Bank és RC továbbra is ESX-ből (account)
             if ESX then
-                local accounts = ESX.GetPlayerData and ESX.GetPlayerData().accounts or nil
+                local playerData = ESX.GetPlayerData and ESX.GetPlayerData() or nil
+                local accounts = playerData and playerData.accounts or nil
                 if accounts then
                     local bank = lastMoney.bank
                     local rc   = lastMoney.rc
                     for _, acc in pairs(accounts) do
-                        if acc.name == 'bank' then bank = acc.money
-                        elseif acc.name == 'realcoin' or acc.name == 'rc' then rc = acc.money end
+                        if acc.name == 'bank' then
+                            bank = acc.money or bank
+                        elseif acc.name == Config.RealCoinAccount or acc.name == 'realcoin' or acc.name == 'rc' then
+                            rc = acc.money or rc
+                        end
                     end
                     if bank ~= lastMoney.bank or rc ~= lastMoney.rc then
                         pushMoney(lastMoney.cash, bank, lastMoney.black, rc)
                     end
                 end
             end
+
+            -- Ha az ESX accounts-ból nem jött RC adat, kérjük a szervertől
+            TriggerServerEvent('realcity_hud:requestRcBalance')
         end
     end
 end)
@@ -298,6 +315,17 @@ RegisterNetEvent('realcity_hud:setLevel', function(data)
         xp     = data.xp,
         xpNext = data.xpNext,
     })
+end)
+
+-- Szint adat lekérése induláskor és periodikusan (ha a realcity-leveling resource fut)
+CreateThread(function()
+    Wait(2000) -- várunk, hogy a NUI és a leveling resource is készen legyen
+    while true do
+        if nuiReady and GetResourceState('realcity-leveling') == 'started' then
+            TriggerServerEvent('realcity_hud:requestLevel')
+        end
+        Wait(Config.UpdateRate.server) -- szerver info rate-tel kérjük (5 sec)
+    end
 end)
 
 CreateThread(function()
